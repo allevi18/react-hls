@@ -11,6 +11,11 @@
     "prepublishOnly": "npm run build",
     "prepare": "install-peers"
   },
+
+  "precommit": [
+    "build"
+  ],
+
   "repository": {
     "type": "git",
     "url": "git+https://github.com/devcshort/react-hls.git"

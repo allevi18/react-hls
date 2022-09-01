@@ -1,3 +1,4 @@
+import Hls from 'hls.js';
 import React, { useState, useRef } from 'react';
 
 import HlsPlayer from '../../src';
@@ -9,6 +10,9 @@ function App() {
     'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8'
   );
   const [destroy, setDestroy] = useState(false);
+  const [HLSInstance, setHLSInstance] = useState<Hls>();
+  const [displayHLSPrperties, setDisplayHLSPrperties] = useState(false)
+  const [selectedQuality, setSelectedQuality] = useState<number>();
 
   function _handleEnter(e: React.KeyboardEvent) {
     if (e.keyCode === 13) {
@@ -26,6 +30,19 @@ function App() {
     } else {
       playerRef?.current?.setAttribute('controls', 'true');
     }
+  }
+
+  function _handleHLSInstanceClick() {
+    setDisplayHLSPrperties(!displayHLSPrperties)
+  }
+
+  function getHLSInstance(hlsInstance: Hls) {
+    setHLSInstance(hlsInstance);
+  }
+
+  function handleQuality(e: React.ChangeEvent<HTMLSelectElement>) {
+    setSelectedQuality(Number(e.target.value));
+    if(HLSInstance) HLSInstance.currentLevel = Number(e.target.value);
   }
 
   return (
@@ -68,6 +85,7 @@ function App() {
           autoPlay
           playerRef={playerRef}
           src={hlsUrl}
+          getHLSInstance={getHLSInstance}
         />
       ) : null}
 
@@ -90,7 +108,36 @@ function App() {
       >
         Toggle Controls (via custom ref)
       </button>
-    </div>
+      <button
+        style={{
+          padding: '5px 10px',
+        }}
+        onClick={_handleHLSInstanceClick}
+      >
+        Get HLS Instance
+      </button>
+
+      {displayHLSPrperties && (
+        <div
+          style={{
+            padding: "5px 10px",
+            border: "1px solid black",
+            margin: "15px 15px",
+          }}
+        >
+          <h3>HLS Details</h3>
+          <p>Total Levels: {HLSInstance?.levels?.length}</p>
+          <div>
+          <p>Select Quoality</p>
+          <select value={selectedQuality} defaultValue={`${HLSInstance?.currentLevel}`} onChange={handleQuality}>
+            {HLSInstance?.levels?.map((level, index) => {
+              return <option value={`${index}`}>{level.bitrate}</option>
+            })}
+          </select>
+          </div>
+        </div>
+      )}
+    </div>  
   );
 }
 

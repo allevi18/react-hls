@@ -1,4 +1,4 @@
-import React, { useEffect, RefObject } from 'react';
+import React, { useEffect, RefObject, useState } from 'react';
 import Hls, { Config } from 'hls.js';
 
 export interface HlsPlayerProps
@@ -6,6 +6,7 @@ export interface HlsPlayerProps
   hlsConfig?: Config;
   playerRef: RefObject<HTMLVideoElement>;
   src: string;
+  getHLSInstance?: (HLSInstance: Hls) => void;
 }
 
 function ReactHlsPlayer({
@@ -13,8 +14,11 @@ function ReactHlsPlayer({
   playerRef = React.createRef<HTMLVideoElement>(),
   src,
   autoPlay,
+  getHLSInstance,
   ...props
 }: HlsPlayerProps) {
+  const [hlsInstance, setHlsInstance] = useState<Hls>();
+
   useEffect(() => {
     let hls: Hls;
 
@@ -64,6 +68,7 @@ function ReactHlsPlayer({
         }
       });
 
+      setHlsInstance(newHls);
       hls = newHls;
     }
 
@@ -78,6 +83,13 @@ function ReactHlsPlayer({
       }
     };
   }, [autoPlay, hlsConfig, playerRef, src]);
+
+  useEffect(() => {
+    if(getHLSInstance && hlsInstance){
+      getHLSInstance(hlsInstance)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hlsInstance])
 
   // If Media Source is supported, use HLS.js to play video
   if (Hls.isSupported()) return <video ref={playerRef} {...props} />;

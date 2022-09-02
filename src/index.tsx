@@ -28,7 +28,7 @@ function ReactHlsPlayer({
       }
 
       const newHls = new Hls({
-        enableWorker: false,
+        //enableWorker: false,
         ...hlsConfig,
       });
 
